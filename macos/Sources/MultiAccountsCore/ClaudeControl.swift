@@ -10,14 +10,27 @@ public protocol ClaudeControl: AnyObject {
     func pid(usingDataFolder dataFolder: URL) -> pid_t?
     /// Whether any copy of Claude runs, main or side by side.
     func anyInstanceRunning() -> Bool
+    /// Whether Claude's updater runs: it waits for every copy of Claude to quit, then installs an
+    /// update and opens the main Claude again.
+    func updaterRunning() -> Bool
     /// Asks one copy of Claude to quit, like ⌘Q in it, and waits until it has.
     func quit(pid: pid_t, timeout: TimeInterval) throws
-    /// Starts the main Claude.
-    func launchMain(app: URL) throws
+    /// Starts the main Claude; `inBackground` leaves the app in front where it is.
+    func launchMain(app: URL, inBackground: Bool) throws
     /// Starts another copy of Claude on its own data folder.
-    func launchSide(app: URL, dataFolder: URL) throws
+    func launchSide(app: URL, dataFolder: URL, inBackground: Bool) throws
     /// Brings a running copy to the front.
     func activate(pid: pid_t)
+}
+
+extension ClaudeControl {
+    func launchMain(app: URL) throws {
+        try launchMain(app: app, inBackground: false)
+    }
+
+    func launchSide(app: URL, dataFolder: URL) throws {
+        try launchSide(app: app, dataFolder: dataFolder, inBackground: false)
+    }
 }
 
 /// The real Claude app on this Mac.
@@ -41,6 +54,10 @@ public final class SystemClaudeControl: ClaudeControl {
         !Self.instances().isEmpty
     }
 
+    public func updaterRunning() -> Bool {
+        Self.processes().contains { $0.path.hasSuffix(ClaudeApp.updaterSuffix) }
+    }
+
     public func quit(pid: pid_t, timeout: TimeInterval) throws {
         guard isAlive(pid) else { return }
         // NSRunningApplication addresses this copy alone; AppleScript's `tell application` would
@@ -56,15 +73,16 @@ public final class SystemClaudeControl: ClaudeControl {
         }
     }
 
-    public func launchMain(app: URL) throws {
+    public func launchMain(app: URL, inBackground: Bool) throws {
         // With a side-by-side window running, a plain `open` would only bring that one forward.
         var args = ["-a", app.path]
         if anyInstanceRunning() { args.insert("-n", at: 0) }
+        if inBackground { args.insert("-g", at: 0) }
         try runOpen(args)
     }
 
-    public func launchSide(app: URL, dataFolder: URL) throws {
-        try runOpen(["-n", "-a", app.path, "--args", ClaudeApp.userDataSwitch + dataFolder.path])
+    public func launchSide(app: URL, dataFolder: URL, inBackground: Bool) throws {
+        try runOpen((inBackground ? ["-g"] : []) + ["-n", "-a", app.path, "--args", ClaudeApp.userDataSwitch + dataFolder.path])
     }
 
     public func activate(pid: pid_t) {
@@ -101,22 +119,27 @@ public final class SystemClaudeControl: ClaudeControl {
 
     /// Every running copy of Claude's main executable (helpers and the Code tab's CLI excluded).
     static func instances() -> [Instance] {
+        processes().filter { $0.path.hasSuffix(ClaudeApp.executableSuffix) }.map { process in
+            guard let args = arguments(of: process.pid) else {
+                return Instance(pid: process.pid, dataFolder: nil, known: false)
+            }
+            let folder = args.dropFirst().last { $0.hasPrefix(ClaudeApp.userDataSwitch) }
+                .map { String($0.dropFirst(ClaudeApp.userDataSwitch.count)) }
+            return Instance(pid: process.pid, dataFolder: folder)
+        }
+    }
+
+    /// Every process this user can see, with the path of its executable.
+    static func processes() -> [(pid: pid_t, path: String)] {
         let count = proc_listallpids(nil, 0)
         guard count > 0 else { return [] }
         var pids = [pid_t](repeating: 0, count: Int(count) + 64)
         let filled = proc_listallpids(&pids, Int32(pids.count * MemoryLayout<pid_t>.size))
-        var result: [Instance] = []
+        var result: [(pid: pid_t, path: String)] = []
         var path = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
         for pid in pids.prefix(Int(max(filled, 0))) where pid > 0 {
-            guard proc_pidpath(pid, &path, UInt32(path.count)) > 0,
-                  String(cString: path).hasSuffix(ClaudeApp.executableSuffix) else { continue }
-            guard let args = arguments(of: pid) else {
-                result.append(Instance(pid: pid, dataFolder: nil, known: false))
-                continue
-            }
-            let folder = args.dropFirst().last { $0.hasPrefix(ClaudeApp.userDataSwitch) }
-                .map { String($0.dropFirst(ClaudeApp.userDataSwitch.count)) }
-            result.append(Instance(pid: pid, dataFolder: folder))
+            guard proc_pidpath(pid, &path, UInt32(path.count)) > 0 else { continue }
+            result.append((pid, String(cString: path)))
         }
         return result
     }

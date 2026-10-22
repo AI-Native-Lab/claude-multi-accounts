@@ -91,6 +91,18 @@ The window refreshes the account's tokens in that folder, so the folder always h
 
 **Adding an account in a new window** starts a copy on a new folder `accounts/new-<time>/` holding a `config.json` with the main Claude's language and theme and a marker `.swap-new-window.json` (`{"name": …}` when a name was given). Whenever the list is read, a marked folder that is signed in joins it (Claude writes its cookies to disk in batches, so this happens within about 30 seconds of signing in): as a new account using that folder, or, for an account already in the list, as its new folder (its earlier folder goes to the Trash, unless a window still runs on it). The marker is then removed. A marked folder whose window closed before signing in can be opened again or moved to the Trash.
 
+## When Claude updates
+
+Once an update has downloaded, a Claude window that sits unfocused and idle for 10 minutes, with no Code session running, quits to install it. Before quitting it writes the note `stealth-relaunch` in its data folder: `{"ts": <ms since 1970>, "windowVisible": …, "navEntries": …}`, the page to show again. Claude reads the note and deletes it when it starts, and ignores one older than 5 minutes. Quitting by hand or a plain restart writes the same note marked `userQuit` or `navOnly`.
+
+Claude's updater (Squirrel's `ShipIt`, running from `Claude.app/Contents/Frameworks/Squirrel.framework/Resources/ShipIt`) then waits until every copy of Claude has quit. Then it replaces `Claude.app` and opens it again, without `--user-data-dir`: that is the main Claude. So on its own:
+
+- an account's window that quit for an update never comes back;
+- a main Claude that quit for an update stays away while any account's window runs;
+- while a window keeps running, the update doesn't install, and Claude logs "Previous update install did not apply" when the copy that quit starts again.
+
+Every 3 seconds the app looks for a note younger than 5 minutes, without `userQuit` or `navOnly`, in Claude's data folder and in each account's folder that no copy runs on. It reopens that copy with `open -g`, which leaves the app in front where it is, and it acts on each note once. While the updater runs and no copy of Claude does, it is replacing `Claude.app`, so the app waits until the updater has opened the main Claude. Then it reopens the account windows. **Settings → Claude updates** turns this off.
+
 ## Switching the main Claude to an account
 
 1. If it is already the main account, open Claude or bring it forward. Done.

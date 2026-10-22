@@ -15,6 +15,8 @@ public final class SimulatedClaude: ClaudeControl, @unchecked Sendable {
     public var refusesToQuit = false
     /// Called when a copy starts on a data folder without a sign-in, to play the person signing in.
     public var signIn: ((URL) -> Void)?
+    /// Plays Claude's updater waiting to install an update.
+    public var updaterIsRunning = false
 
     public init(liveData: URL) {
         self.liveData = liveData
@@ -32,6 +34,10 @@ public final class SimulatedClaude: ClaudeControl, @unchecked Sendable {
         lock.withLock { main != nil || !windows.isEmpty }
     }
 
+    public func updaterRunning() -> Bool {
+        updaterIsRunning
+    }
+
     public func quit(pid: pid_t, timeout: TimeInterval) throws {
         if refusesToQuit { throw SwapError.claudeDidNotQuit }
         Thread.sleep(forTimeInterval: quitDelay)
@@ -41,13 +47,19 @@ public final class SimulatedClaude: ClaudeControl, @unchecked Sendable {
         }
     }
 
-    public func launchMain(app: URL) throws {
+    public func launchMain(app: URL, inBackground: Bool) throws {
         lock.withLock { main = takePID() }
-        if !Login.hasSignIn(in: liveData) { signIn?(liveData) }
+        started(on: liveData)
     }
 
-    public func launchSide(app: URL, dataFolder: URL) throws {
+    public func launchSide(app: URL, dataFolder: URL, inBackground: Bool) throws {
         lock.withLock { windows[SystemClaudeControl.canonical(dataFolder.path)] = takePID() }
+        started(on: dataFolder)
+    }
+
+    /// Claude reads the note it left when it quit to update, then deletes it.
+    private func started(on dataFolder: URL) {
+        try? FileManager.default.removeItem(at: dataFolder.appendingPathComponent(AccountManager.updateQuitNote))
         if !Login.hasSignIn(in: dataFolder) { signIn?(dataFolder) }
     }
 
@@ -100,6 +112,10 @@ public final class FileClaudeControl: ClaudeControl {
         mainPID() != nil || !windows().isEmpty
     }
 
+    public func updaterRunning() -> Bool {
+        false
+    }
+
     public func quit(pid: pid_t, timeout: TimeInterval) throws {
         guard pid == Self.mainFakePID else {
             for window in windows() where window.pid == pid { try? FileManager.default.removeItem(at: window.file) }
@@ -113,11 +129,11 @@ public final class FileClaudeControl: ClaudeControl {
         try? FileManager.default.removeItem(at: marker)
     }
 
-    public func launchMain(app: URL) throws {
+    public func launchMain(app: URL, inBackground: Bool) throws {
         FileManager.default.createFile(atPath: marker.path, contents: nil)
     }
 
-    public func launchSide(app: URL, dataFolder: URL) throws {
+    public func launchSide(app: URL, dataFolder: URL, inBackground: Bool) throws {
         try FileManager.default.createDirectory(at: windowsFolder, withIntermediateDirectories: true)
         let pid = (windows().map(\.pid).max() ?? 90_000) + 1
         try Data(SystemClaudeControl.canonical(dataFolder.path).utf8)

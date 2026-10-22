@@ -59,7 +59,9 @@ final class AppModel: ObservableObject {
     }
 
     func refresh() {
+        let reopen = settings.reopenAfterUpdates
         work.async { [manager] in
+            if reopen { manager.reopenWindowsClosedByUpdates() }
             let result = Result { try manager.snapshot() }
             Task { @MainActor in
                 switch result {

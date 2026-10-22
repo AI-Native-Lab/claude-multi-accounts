@@ -15,7 +15,7 @@ enum Screenshots {
         }
 
         try await snapshot(SettingsView(model: model, settings: settings, showsDoneButton: false),
-                           size: NSSize(width: 560, height: 900), title: "Settings",
+                           size: NSSize(width: 560, height: 1070), title: "Settings",
                            appearance: .aqua, to: folder.appendingPathComponent("settings.png"))
     }
 

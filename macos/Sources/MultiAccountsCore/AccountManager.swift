@@ -83,6 +83,8 @@ public final class AccountManager {
     public var log: (String) -> Void
 
     let claude: ClaudeControl
+    /// The update notes acted on already (see Updates.swift), so each quit is reopened only once.
+    var handledUpdateQuits: Set<String> = []
     static let keepBackups = 20
     static let newWindowMarker = ".swap-new-window.json"
 
@@ -249,38 +251,42 @@ public final class AccountManager {
     /// the account's folder, so its sign-in stays in one place.
     @discardableResult
     public func openWindow(_ query: String) throws -> String {
-        try withLock {
-            adoptNewWindows()
-            let account = try find(query)
-            let main = try mainState()
-            if main.signedIn && main.uuid == account.uuid {
-                try openMain()
-                return "“\(account.name)” is the account in the main Claude."
-            }
-            let folder = layout.folder(of: account)
-            if let pid = claude.pid(usingDataFolder: folder) {
-                claude.activate(pid: pid)
-                return "Brought the window of “\(account.name)” to the front."
-            }
-            guard Login.hasSignIn(in: folder) else { throw SwapError.notSavedYet(account.name) }
-            try requireClaude()
-            try Login.prepareForWindow(folder, mainData: layout.liveData)
-            try takeSessions(of: account)
-            do {
-                try claude.launchSide(app: layout.claudeApp, dataFolder: folder)
-            } catch {
-                try? returnSessions(of: account)
-                throw error
-            }
-            // Keep the lock until the window's process shows, or a refresh in between would take
-            // it for closed and move its sessions back.
-            let deadline = Date().addingTimeInterval(launchTimeout)
-            while claude.pid(usingDataFolder: folder) == nil && Date() < deadline {
-                Thread.sleep(forTimeInterval: 0.2)
-            }
-            log("Opened “\(account.name)” in its own window")
-            return "Opened “\(account.name)” in its own Claude window."
+        try withLock { try openWindowHoldingLock(query, inBackground: false) }
+    }
+
+    /// `openWindow` for a caller that holds the lock; `inBackground` leaves the app in front where it is.
+    @discardableResult
+    func openWindowHoldingLock(_ query: String, inBackground: Bool) throws -> String {
+        adoptNewWindows()
+        let account = try find(query)
+        let main = try mainState()
+        if main.signedIn && main.uuid == account.uuid {
+            try openMain()
+            return "“\(account.name)” is the account in the main Claude."
         }
+        let folder = layout.folder(of: account)
+        if let pid = claude.pid(usingDataFolder: folder) {
+            claude.activate(pid: pid)
+            return "Brought the window of “\(account.name)” to the front."
+        }
+        guard Login.hasSignIn(in: folder) else { throw SwapError.notSavedYet(account.name) }
+        try requireClaude()
+        try Login.prepareForWindow(folder, mainData: layout.liveData)
+        try takeSessions(of: account)
+        do {
+            try claude.launchSide(app: layout.claudeApp, dataFolder: folder, inBackground: inBackground)
+        } catch {
+            try? returnSessions(of: account)
+            throw error
+        }
+        // Keep the lock until the window's process shows, or a refresh in between would take
+        // it for closed and move its sessions back.
+        let deadline = Date().addingTimeInterval(launchTimeout)
+        while claude.pid(usingDataFolder: folder) == nil && Date() < deadline {
+            Thread.sleep(forTimeInterval: 0.2)
+        }
+        log("Opened “\(account.name)” in its own window")
+        return "Opened “\(account.name)” in its own Claude window."
     }
 
     /// Quits an account's own Claude window, like ⌘Q in that window. Its sign-in stays in its folder.
@@ -408,6 +414,7 @@ public final class AccountManager {
         let expiry = Login.expiry(in: layout.liveData)
         checks.append(("claude.ai sign-in cookie", "valid \(Self.describe(expiry))", expiry != nil))
         checks.append(("Main Claude running", claude.mainPID() != nil ? "yes" : "no", true))
+        checks.append(("Claude update waiting to install", claude.updaterRunning() ? "yes" : "no", true))
         let open = accounts().filter { claude.pid(usingDataFolder: layout.folder(of: $0)) != nil }.count
         checks.append(("Windows open side by side", String(open), true))
         checks.append(("Saved accounts", String(accounts().count), true))

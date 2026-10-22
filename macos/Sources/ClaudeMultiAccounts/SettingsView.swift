@@ -40,6 +40,12 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                Section("Claude updates") {
+                    Toggle("Reopen windows that Claude closes to update", isOn: $settings.reopenAfterUpdates)
+                    Text("Claude quits a window that sits idle to install an update, then reopens only the main Claude. With this on, the app reopens the others in the background. The update itself installs once all Claude windows have quit at the same time.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
                 Section("Command line") {
                     LabeledContent("claude-multi-accounts") {
                         if model.commandInstalled {
@@ -81,6 +87,6 @@ struct SettingsView: View {
                 .padding(14)
             }
         }
-        .frame(width: 560, height: showsDoneButton ? 660 : 900)
+        .frame(width: 560, height: showsDoneButton ? 660 : 1070)
     }
 }

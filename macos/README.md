@@ -34,7 +34,7 @@ open -n "build/Claude Multi-Accounts.app" --args --demo   # try it with four syn
 
 ## Source
 
-- `Sources/MultiAccountsCore`: the account list, switching, side-by-side windows, reading Claude's sign-in, finding and quitting copies of Claude, and the synthetic data for the demo.
+- `Sources/MultiAccountsCore`: the account list, switching, side-by-side windows, reading Claude's sign-in, finding and quitting copies of Claude, reopening windows Claude closed to update (`Updates.swift`), and the synthetic data for the demo.
 - `Sources/claude-multi-accounts`: the command, with its detached worker.
 - `Sources/ClaudeMultiAccounts`: the AppKit app with SwiftUI views: the window (`MainView`), settings (`SettingsView`), the menu bar item and Dock menu (`Menus.swift`) and the screenshot renderer (`Screenshots.swift`).
 - `Tests/MultiAccountsCoreTests`: unit tests for the core.

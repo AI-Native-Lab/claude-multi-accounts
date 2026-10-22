@@ -79,5 +79,8 @@ public enum ClaudeApp {
     public static let bundleID = "com.anthropic.claudefordesktop"
     /// The main executable inside Claude.app; its helper processes have other names.
     static let executableSuffix = "/Claude.app/Contents/MacOS/Claude"
+    /// Claude's updater (Squirrel's ShipIt). Other apps bring their own copy, so the path tells
+    /// Claude's apart; it stays the same while the update moves Claude.app aside.
+    static let updaterSuffix = "/Claude.app/Contents/Frameworks/Squirrel.framework/Resources/ShipIt"
     static let userDataSwitch = "--user-data-dir="
 }

@@ -193,6 +193,76 @@ final class AccountManagerTests: XCTestCase {
         XCTAssertEqual(try fm.contentsOfDirectory(atPath: layout.trash!.path).count, 1)
     }
 
+    /// Leaves the note Claude writes in its data folder when it quits to install an update.
+    func quitForUpdate(_ folder: URL, written: Date = Date(), _ extra: [String: Any] = [:]) throws {
+        let note = ["ts": written.timeIntervalSince1970 * 1000, "windowVisible": true].merging(extra) { _, new in new }
+        try Login.writeJSON(note, to: folder.appendingPathComponent(AccountManager.updateQuitNote))
+        let pid = folder == layout.liveData ? claude.mainPID() : claude.pid(usingDataFolder: folder)
+        try claude.quit(pid: XCTUnwrap(pid), timeout: 1)
+    }
+
+    func test_aWindowClaudeClosedToUpdateOpensAgain() throws {
+        try twoAccounts()
+        try manager.openWindow("Personal")
+        let folder = layout.folder(of: try manager.find("Personal"))
+        let note = folder.appendingPathComponent(AccountManager.updateQuitNote)
+
+        // The main Claude keeps running, so the updater waits and the window comes back at once.
+        claude.updaterIsRunning = true
+        let written = Date()
+        try quitForUpdate(folder, written: written)
+        XCTAssertEqual(try place("Personal"), .saved)
+        manager.reopenWindowsClosedByUpdates()
+        XCTAssertEqual(try place("Personal"), .window)
+        XCTAssertFalse(Files.exists(note), "Claude read its note")
+
+        // Each quit is reopened once.
+        try quitForUpdate(folder, written: written)
+        manager.reopenWindowsClosedByUpdates()
+        XCTAssertEqual(try place("Personal"), .saved)
+
+        // Quitting by hand, Claude restarting itself and old notes are left alone.
+        try manager.openWindow("Personal")
+        try quitForUpdate(folder, ["userQuit": true, "navOnly": true])
+        manager.reopenWindowsClosedByUpdates()
+        try manager.openWindow("Personal")
+        try quitForUpdate(folder, ["navOnly": true])
+        manager.reopenWindowsClosedByUpdates()
+        try manager.openWindow("Personal")
+        try quitForUpdate(folder, written: Date(timeIntervalSinceNow: -400))
+        manager.reopenWindowsClosedByUpdates()
+        XCTAssertEqual(try place("Personal"), .saved)
+    }
+
+    func test_whileTheUpdateInstallsNothingStarts() throws {
+        try twoAccounts()
+        try manager.openWindow("Personal")
+        let folder = layout.folder(of: try manager.find("Personal"))
+        claude.updaterIsRunning = true
+        try claude.quit(pid: XCTUnwrap(claude.mainPID()), timeout: 1)
+        try quitForUpdate(folder)
+
+        // Every copy has quit: the updater is replacing Claude.app.
+        manager.reopenWindowsClosedByUpdates()
+        XCTAssertFalse(claude.anyInstanceRunning())
+
+        // It has, and opened the main Claude.
+        claude.updaterIsRunning = false
+        try claude.launchMain(app: layout.claudeApp)
+        manager.reopenWindowsClosedByUpdates()
+        XCTAssertEqual(try place("Personal"), .window)
+    }
+
+    func test_theMainClaudeClosedToUpdateOpensAgainWhileAWindowRuns() throws {
+        try twoAccounts()
+        try manager.openWindow("Personal")
+        claude.updaterIsRunning = true
+        try quitForUpdate(layout.liveData)
+        manager.reopenWindowsClosedByUpdates()
+        XCTAssertNotNil(claude.mainPID())
+        XCTAssertEqual(try place("Work"), .main)
+    }
+
     func test_theMainAccountSignedInTwiceBlocksSwitching() throws {
         try twoAccounts()
         let work = try manager.find("Work")

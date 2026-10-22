@@ -10,6 +10,7 @@ final class AppSettings: ObservableObject {
         static let showDockIcon = "showDockIcon"
         static let showNameInMenuBar = "showNameInMenuBar"
         static let askBeforeSwitching = "askBeforeSwitching"
+        static let reopenAfterUpdates = "reopenAfterUpdates"
     }
 
     private let defaults: UserDefaults
@@ -30,16 +31,23 @@ final class AppSettings: ObservableObject {
     @Published var askBeforeSwitching: Bool {
         didSet { defaults.set(askBeforeSwitching, forKey: Key.askBeforeSwitching) }
     }
+    /// Claude quits an idle window to install an update and its updater reopens only the main
+    /// Claude, so the app reopens the rest.
+    @Published var reopenAfterUpdates: Bool {
+        didSet { defaults.set(reopenAfterUpdates, forKey: Key.reopenAfterUpdates) }
+    }
 
     init(isDemo: Bool) {
         self.isDemo = isDemo
         defaults = isDemo ? UserDefaults(suiteName: "local.claude-account-swap.demo") ?? .standard : .standard
         defaults.register(defaults: [Key.showMenuBarIcon: true, Key.showDockIcon: true,
-                                     Key.showNameInMenuBar: true, Key.askBeforeSwitching: true])
+                                     Key.showNameInMenuBar: true, Key.askBeforeSwitching: true,
+                                     Key.reopenAfterUpdates: true])
         showMenuBarIcon = defaults.bool(forKey: Key.showMenuBarIcon)
         showDockIcon = defaults.bool(forKey: Key.showDockIcon)
         showNameInMenuBar = defaults.bool(forKey: Key.showNameInMenuBar)
         askBeforeSwitching = defaults.bool(forKey: Key.askBeforeSwitching)
+        reopenAfterUpdates = defaults.bool(forKey: Key.reopenAfterUpdates)
     }
 
     var openAtLogin: Bool {

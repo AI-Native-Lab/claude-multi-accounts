@@ -46,7 +46,8 @@
 - it **takes disk space**: Claude downloads its Code tools (about 0.5 GB) into that folder, and its Cowork virtual machine (several GB) if you use Cowork there. The app shows each account's folder size;
 - **Claude in Chrome** doesn't pair with a side-by-side window (Claude turns its local pairing off when its data folder is moved), so use the browser extension with the main Claude;
 - `claude://` links and clicks on Claude's Dock icon go to whichever copy macOS picks, usually the first one opened. Use the app or its menu to bring a window forward;
-- both windows have the same Claude icon in the Dock; tell them apart by the account in each window.
+- both windows have the same Claude icon in the Dock; tell them apart by the account in each window;
+- **Claude's updates close it.** When an update has downloaded, Claude quits a window that sits idle to install it, and Claude's updater then reopens only the main Claude. While the app runs, it reopens the window in the background a few seconds later, on the page it was showing (turn this off in Settings). The update itself installs only once every Claude window has quit at the same time, for example when you quit them all.
 
 **Switching restarts the main Claude.** Claude quits (like ⌘Q) and reopens signed in to the other account a few seconds later. Code sessions that are running stop; Claude keeps a separate session list per account, so you see the other account's sessions after switching, and your earlier ones come back when you switch back. If Claude asks to confirm quitting, confirm. If it won't quit, nothing changes.
 
@@ -179,6 +180,7 @@ Click **Settings** in the window (or ⌘,) to:
 - show or hide the Dock icon, the menu bar item, and the account name next to the menu bar icon (with both icons off, open the app from Launchpad, Spotlight or Applications);
 - open Claude Multi-Accounts at login (it then waits in the menu bar without a window);
 - ask, or not, before switching the main Claude;
+- reopen, or not, the windows Claude closes to install an update;
 - install the `claude-multi-accounts` command;
 - show the saved accounts, Claude's data folder or the activity log.
 
