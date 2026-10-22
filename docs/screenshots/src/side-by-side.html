@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Side by side</title>
+<!-- Illustration for the README: two Claude accounts open at once, with synthetic data only.
+     The windows are simplified sketches, not copies of Claude's interface.
+     Rendered to ../side-by-side.png by ../make-screenshots.sh. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #faf8f4; --panel: #f1ede6; --line: #e3ddd3; --text: #2a2622; --dim: #8b8379;
+    --accent: #c9643f; --blue: #2f6fe4; --code: #1f2328; --code-dim: #8b949e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1600px; height: 1000px; }
+  body {
+    font-family: "Be Vietnam Pro", sans-serif; color: var(--text); position: relative; overflow: hidden;
+    background: radial-gradient(1100px 760px at 12% 8%, #f6c4a2 0%, transparent 60%),
+                radial-gradient(1000px 700px at 92% 95%, #b989b0 0%, transparent 55%),
+                linear-gradient(135deg, #e48e67, #8f5a8f);
+  }
+  .menubar {
+    position: absolute; inset: 0 0 auto 0; height: 32px; background: rgba(255,255,255,.4);
+    backdrop-filter: blur(20px); display: flex; align-items: center; padding: 0 18px; gap: 22px;
+    font-size: 13.5px; font-weight: 500;
+  }
+  .menubar .spacer { flex: 1; }
+  .status { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,.55); padding: 2px 9px; border-radius: 6px; }
+  .status svg { width: 16px; height: 16px; }
+
+  .label {
+    position: absolute; top: 52px; font-size: 17px; font-weight: 700; color: #fff;
+    display: flex; align-items: center; gap: 10px; text-shadow: 0 1px 3px rgba(60,20,30,.35);
+  }
+  .label .tag { font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 999px; text-shadow: none; }
+  .label .tag.main { background: #e7f6ea; color: #23863a; }
+  .label .tag.own { background: #e6efff; color: var(--blue); }
+
+  .window {
+    position: absolute; top: 88px; width: 752px; height: 720px; border-radius: 12px; overflow: hidden;
+    background: var(--paper); box-shadow: 0 26px 70px rgba(50, 15, 40, .40), 0 0 0 1px rgba(0,0,0,.14);
+    display: flex; flex-direction: column;
+  }
+  .left { left: 36px; }
+  .right { left: 812px; outline: 3px solid rgba(47,111,228,.55); outline-offset: 0; }
+  .titlebar { height: 38px; display: flex; align-items: center; padding: 0 14px; background: var(--panel); border-bottom: 1px solid var(--line); font-size: 13px; font-weight: 600; color: var(--dim); }
+  .lights { display: flex; gap: 8px; margin-right: 16px; }
+  .lights i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .lights i:nth-child(1) { background: #ff5f57; } .lights i:nth-child(2) { background: #febc2e; } .lights i:nth-child(3) { background: #28c840; }
+  .tabs { display: flex; gap: 4px; margin-left: auto; margin-right: auto; background: #e6e0d6; padding: 3px; border-radius: 8px; }
+  .tabs span { padding: 3px 14px; border-radius: 6px; font-size: 12.5px; }
+  .tabs .on { background: #fff; color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .body { flex: 1; display: flex; min-height: 0; }
+
+  .side { width: 220px; background: var(--panel); border-right: 1px solid var(--line); padding: 16px 12px; display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; }
+  .side .new { background: #fff; border: 1px solid var(--line); border-radius: 9px; padding: 8px 12px; font-weight: 600; margin-bottom: 10px; }
+  .side h4 { font-size: 11.5px; color: var(--dim); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin: 8px 4px 4px; }
+  .side .chat { padding: 7px 10px; border-radius: 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #4a443d; }
+  .side .chat.on { background: #e6e0d6; color: var(--text); font-weight: 500; }
+  .side .who { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px 6px 2px; border-top: 1px solid var(--line); }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; flex: none; }
+  .who b { display: block; font-size: 13.5px; }
+  .who span { font-size: 12px; color: var(--dim); }
+
+  .main { flex: 1; display: flex; flex-direction: column; padding: 26px 30px 20px; min-width: 0; }
+  .msg-user { align-self: flex-end; background: #ece6dc; padding: 12px 16px; border-radius: 14px; font-size: 14.5px; line-height: 1.5; max-width: 82%; }
+  .msg-ai { margin-top: 20px; font-size: 14.5px; line-height: 1.65; color: #3a342e; }
+  .msg-ai p + p { margin-top: 10px; }
+  .msg-ai ul { margin: 8px 0 0 20px; }
+  .composer { margin-top: auto; border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: 14px 16px; font-size: 14px; color: var(--dim); display: flex; align-items: center; }
+  .composer .send { margin-left: auto; width: 30px; height: 30px; border-radius: 8px; background: var(--accent); }
+
+  .session { font-size: 13px; color: var(--dim); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .session b { color: var(--text); font-size: 15px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #2fb35a; }
+  .term { background: var(--code); color: #e6edf3; border-radius: 10px; padding: 14px 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; line-height: 1.7; }
+  .term .d { color: var(--code-dim); } .term .g { color: #56d364; } .term .y { color: #e3b341; }
+  .note-step { margin-top: 14px; font-size: 14px; line-height: 1.6; color: #3a342e; }
+  .note-step li { margin-left: 20px; }
+
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 46px; text-align: center; color: #fff;
+    font-size: 21px; font-weight: 600; text-shadow: 0 1px 3px rgba(60,20,30,.35);
+  }
+  .caption span { opacity: .9; font-weight: 500; font-size: 17px; display: block; margin-top: 6px; }
+</style>
+</head>
+<body>
+  <div class="menubar">
+    <b>Claude</b><span>File</span><span>Edit</span><span>View</span><span>Window</span><span>Help</span>
+    <span class="spacer"></span>
+    <span class="status">
+      <svg viewBox="0 0 20 20" fill="none" stroke="#1d1d1f" stroke-width="1.5"><rect x="1.8" y="4" width="7.4" height="12" rx="1.6"/><rect x="10.8" y="4" width="7.4" height="12" rx="1.6"/></svg>
+      Personal
+    </span>
+    <span>Wed 21 Oct&nbsp; 14:05</span>
+  </div>
+
+  <div class="label" style="left: 40px">Personal <span class="tag main">Main Claude</span></div>
+  <div class="label" style="left: 816px">Work · Northwind <span class="tag own">Own window</span></div>
+
+  <div class="window left">
+    <div class="titlebar">
+      <div class="lights"><i></i><i></i><i></i></div>
+      <div class="tabs"><span class="on">Chat</span><span>Code</span></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="new">＋ New chat</div>
+        <h4>Recents</h4>
+        <div class="chat on">Weekend trip to the coast</div>
+        <div class="chat">Sourdough starter schedule</div>
+        <div class="chat">Bike commute route ideas</div>
+        <div class="chat">Reading list for autumn</div>
+        <div class="who"><div class="avatar" style="background:#b04ec8">P</div><div><b>Personal</b><span>Pro plan</span></div></div>
+      </div>
+      <div class="main">
+        <div class="msg-user">Plan a relaxed two-day trip to the coast for this weekend. We'll take the train.</div>
+        <div class="msg-ai">
+          <p>Here's an easy-going plan that keeps travel short:</p>
+          <ul>
+            <li><b>Saturday:</b> morning train, lunch by the harbour, a two-hour cliff walk, early dinner.</li>
+            <li><b>Sunday:</b> slow breakfast, the maritime museum, then the 4 pm train home.</li>
+          </ul>
+          <p>Want me to look at train times and a few places to stay near the station?</p>
+        </div>
+        <div class="composer">Reply to Claude…<span class="send"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="window right">
+    <div class="titlebar">
+      <div class="lights"><i></i><i></i><i></i></div>
+      <div class="tabs"><span>Chat</span><span class="on">Code</span></div>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="new">＋ New session</div>
+        <h4>Sessions</h4>
+        <div class="chat on">Fix flaky checkout test</div>
+        <div class="chat">Add CSV export to reports</div>
+        <div class="chat">Upgrade the build to Node 22</div>
+        <div class="who"><div class="avatar" style="background:#5a55d6">WN</div><div><b>Work · Northwind</b><span>Team plan</span></div></div>
+      </div>
+      <div class="main">
+        <div class="session"><span class="dot"></span><b>Fix flaky checkout test</b> · northwind/shop</div>
+        <div class="term">
+          <div><span class="d">$</span> npm test -- checkout.spec.ts</div>
+          <div><span class="y">●</span> checkout › applies the voucher once <span class="d">(timed out)</span></div>
+          <div class="d">  waiting for the cart total to settle…</div>
+          <div><span class="g">✓</span> patched: await the price recalculation before asserting</div>
+          <div><span class="d">$</span> npm test -- checkout.spec.ts --repeat 50</div>
+          <div><span class="g">✓ 50 / 50 passed</span></div>
+        </div>
+        <div class="note-step">
+          <p>The test raced the price update. Changes:</p>
+          <ul><li>wait for the recalculated total in <code>checkout.spec.ts</code></li><li>remove the retry that hid the race</li></ul>
+        </div>
+        <div class="composer">Reply…<span class="send"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="caption">Two accounts at once: the main Claude and a second window, each signed in to its own account.
+    <span>Illustration with synthetic data. The second window runs on the account's own folder, so neither restarts the other.</span></div>
+</body>
+</html>

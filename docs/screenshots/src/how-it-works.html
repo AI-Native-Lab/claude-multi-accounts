@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How it works</title>
+<!-- Diagram for the README: switching and side-by-side windows. Rendered to ../how-it-works.png
+     by ../make-screenshots.sh. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbf8f4; --card: #ffffff; --line: #e6ded3; --text: #2a2622; --dim: #7d756b;
+    --accent: #c9643f; --accent-soft: #fbe9e1; --blue: #2f6fe4; --blue-soft: #e8f0ff; --green: #23863a; --green-soft: #e7f6ea;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1400px; height: 1010px; }
+  body { font-family: "Be Vietnam Pro", sans-serif; background: var(--bg); color: var(--text); padding: 46px 56px; }
+  h1 { font-size: 30px; font-weight: 800; letter-spacing: -.01em; }
+  .lede { margin-top: 8px; font-size: 16px; color: var(--dim); }
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .86em; background: #f1ebe3; padding: 1px 6px; border-radius: 5px; white-space: nowrap; }
+
+  .lane { margin-top: 30px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 24px 26px; }
+  .lane h2 { font-size: 19px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .pill { font-size: 12.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+  .pill.a { background: var(--accent-soft); color: var(--accent); }
+  .pill.b { background: var(--blue-soft); color: var(--blue); }
+  .lane .sub { margin-top: 4px; font-size: 14.5px; color: var(--dim); }
+
+  .steps { margin-top: 18px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 34px; position: relative; }
+  .step { border: 1px solid var(--line); border-radius: 14px; padding: 16px 16px 18px; background: #fffdfa; position: relative; }
+  .step + .step::before {
+    content: ""; position: absolute; left: -30px; top: 50%; width: 22px; height: 2px; background: #cdbfae;
+  }
+  .step + .step::after {
+    content: ""; position: absolute; left: -12px; top: calc(50% - 5px); border: 6px solid transparent; border-left-color: #cdbfae;
+  }
+  .num { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13.5px; }
+  .lane.side .num { background: var(--blue); }
+  .step b { display: block; margin-top: 10px; font-size: 15.5px; }
+  .step p { margin-top: 6px; font-size: 13.5px; line-height: 1.55; color: #5a5249; }
+
+  .folders { margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .folder { border: 1px dashed #cdbfae; border-radius: 14px; padding: 16px 18px; background: #fffdfa; font-size: 14px; line-height: 1.6; }
+  .folder h3 { font-size: 15px; margin-bottom: 6px; }
+  .folder .tree { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: #4a443d; white-space: pre; line-height: 1.7; }
+  .rule { margin-top: 22px; display: flex; gap: 12px; align-items: flex-start; background: var(--green-soft); color: #1d5b2c; border-radius: 12px; padding: 14px 18px; font-size: 14.5px; line-height: 1.55; }
+  .rule b { color: var(--green); }
+</style>
+</head>
+<body>
+  <h1>How Claude Multi-Accounts works</h1>
+  <p class="lede">Claude keeps its sign-in in its data folder: the <code>sessionKey</code> cookies in <code>Cookies</code> and three keys in <code>config.json</code>. The app only ever moves those.</p>
+
+  <div class="lane side">
+    <h2>Open an account side by side <span class="pill b">main Claude keeps running</span></h2>
+    <p class="sub">A second copy of Claude runs on the account's own folder, so two accounts are signed in at the same time.</p>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><b>Pick a saved account</b><p>Any account that isn't in the main Claude, or sign in to a new one.</p></div>
+      <div class="step"><div class="num">2</div><b>Its folder becomes a data folder</b><p>Its saved keys move into a <code>config.json</code> there, with your language and theme.</p></div>
+      <div class="step"><div class="num">3</div><b>Start a second Claude</b><p>A new copy of Claude, started with <code>--user-data-dir</code> set to that folder.</p></div>
+      <div class="step"><div class="num">4</div><b>Use both</b><p>Refreshed tokens stay in that folder, so the account stays signed in for next time.</p></div>
+    </div>
+  </div>
+
+  <div class="lane">
+    <h2>Switch the main Claude <span class="pill a">a few seconds</span></h2>
+    <p class="sub">The main Claude restarts signed in to another account. Its settings, extensions and Code sessions stay where they are.</p>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><b>Quit Claude</b><p>Like ⌘Q. Never forced: if Claude won't quit, nothing changes.</p></div>
+      <div class="step"><div class="num">2</div><b>Save its sign-in</b><p>The live cookies and keys go to the folder of the account they belong to, after a backup.</p></div>
+      <div class="step"><div class="num">3</div><b>Put the other in place</b><p>The target account's saved cookies and keys replace them. Nothing else is touched.</p></div>
+      <div class="step"><div class="num">4</div><b>Reopen Claude</b><p>Claude opens already signed in. Nothing is sent to Anthropic.</p></div>
+    </div>
+  </div>
+
+  <div class="folders">
+    <div class="folder"><h3>The main Claude</h3><div class="tree">~/Library/Application Support/Claude/
+    Cookies           ← claude.ai sign-in
+    config.json       ← tokens, account id
+    …                 settings, extensions, sessions</div></div>
+    <div class="folder"><h3>Each saved account</h3><div class="tree">~/.claude-multi-accounts/
+    accounts.json     names and order
+    accounts/&lt;id&gt;/    its sign-in, and its own
+                      window's data once opened
+    backups/          the last 20 live sign-ins</div></div>
+  </div>
+  <div class="rule"><b>✓</b><div><b>Each sign-in lives in one place at a time:</b> the main Claude, its folder, or the window running on that folder. An account open in its own window can't be switched to or removed until that window closes, and nothing is ever force-quit.</div></div>
+</body>
+</html>

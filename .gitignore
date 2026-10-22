@@ -1,0 +1,7 @@
+.DS_Store
+
+# macOS app (Swift Package Manager and scripts/build.sh)
+.build/
+.swiftpm/
+macos/build/
+__pycache__/

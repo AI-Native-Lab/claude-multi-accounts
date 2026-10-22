@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Menu bar</title>
+<!-- Illustration for the README: the Claude Multi-Accounts menu bar item, with synthetic data only.
+     The menu mirrors StatusMenuController in macos/Sources/ClaudeMultiAccounts/Menus.swift.
+     Rendered to ../menu-bar.png by ../make-screenshots.sh. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --menu-bg: rgba(246, 244, 241, 0.94); --menu-line: rgba(0,0,0,.10); --text: #1d1d1f; --dim: #8a8a8e;
+    --pick: #2f6fe4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 720px; }
+  body {
+    font-family: "Be Vietnam Pro", sans-serif; color: var(--text); position: relative; overflow: hidden;
+    background: radial-gradient(900px 600px at 20% 15%, #f7c9a8 0%, transparent 60%),
+                radial-gradient(900px 700px at 85% 90%, #c98aa8 0%, transparent 55%),
+                linear-gradient(135deg, #e9946d, #9a5a8c);
+  }
+  .menubar {
+    position: absolute; inset: 0 0 auto 0; height: 34px; background: rgba(255,255,255,.42);
+    backdrop-filter: blur(24px); display: flex; align-items: center; padding: 0 16px; gap: 22px;
+    font-size: 14px; font-weight: 500;
+  }
+  .menubar b { font-weight: 700; }
+  .menubar .spacer { flex: 1; }
+  .menubar svg { width: 17px; height: 17px; display: block; }
+  .status { display: flex; align-items: center; gap: 7px; padding: 3px 9px; border-radius: 6px; background: rgba(0,0,0,.14); }
+
+  .menu {
+    position: absolute; top: 40px; width: 440px; background: var(--menu-bg); border-radius: 11px;
+    box-shadow: 0 18px 50px rgba(40, 10, 30, .35), 0 0 0 .5px rgba(0,0,0,.25); padding: 6px; font-size: 14px;
+    backdrop-filter: blur(30px);
+  }
+  .main { right: 236px; }
+  .item { height: 27px; display: flex; align-items: center; padding: 0 10px 0 26px; border-radius: 6px; position: relative; white-space: nowrap; }
+  .item.dim { color: var(--dim); }
+  .item.head { color: var(--dim); font-weight: 600; font-size: 12.5px; padding-left: 10px; }
+  .item.pick { background: var(--pick); color: #fff; }
+  .item .check { position: absolute; left: 9px; font-weight: 700; }
+  .item .note { color: var(--dim); margin-left: 8px; }
+  .item.pick .note { color: rgba(255,255,255,.8); }
+  .item .chev { margin-left: auto; font-weight: 600; }
+  .sep { height: 1px; background: var(--menu-line); margin: 5px 10px; }
+
+  .caption {
+    position: absolute; left: 48px; bottom: 44px; width: 430px; color: #fff; text-shadow: 0 1px 3px rgba(60,20,30,.35);
+  }
+  .caption h1 { font-size: 30px; font-weight: 700; line-height: 1.2; }
+  .caption p { margin-top: 12px; font-size: 16px; line-height: 1.55; opacity: .95; }
+</style>
+</head>
+<body>
+  <div class="menubar">
+    <svg viewBox="0 0 17 17"><path fill="#1d1d1f" d="M11.6 9.1c0-1.8 1.5-2.7 1.6-2.7-.9-1.3-2.2-1.4-2.7-1.5-1.1-.1-2.2.7-2.8.7s-1.5-.7-2.4-.6C4.1 5 3 5.7 2.4 6.8 1.1 9 2.1 12.3 3.3 14c.6.9 1.3 1.8 2.2 1.8s1.2-.6 2.3-.6 1.3.6 2.3.6 1.5-.9 2.1-1.7c.7-1 .9-1.9 1-2-.1 0-1.6-.6-1.6-3zM9.9 3.7c.5-.6.8-1.4.7-2.2-.7 0-1.6.5-2.1 1.1-.5.5-.9 1.4-.8 2.2.8.1 1.6-.4 2.2-1.1z"/></svg>
+    <b>Finder</b><span>File</span><span>Edit</span><span>View</span><span>Go</span><span>Window</span><span>Help</span>
+    <span class="spacer"></span>
+    <span class="status">
+      <svg viewBox="0 0 20 20" fill="none" stroke="#1d1d1f" stroke-width="1.5"><rect x="1.8" y="4" width="7.4" height="12" rx="1.6"/><rect x="10.8" y="4" width="7.4" height="12" rx="1.6"/></svg>
+      Personal
+    </span>
+    <svg viewBox="0 0 20 20" fill="#1d1d1f"><path d="M10 15.5a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2zM5.8 11.3l1.2 1.2a4.3 4.3 0 0 1 6 0l1.2-1.2a6 6 0 0 0-8.4 0zm-2.6-2.6 1.2 1.2a7.9 7.9 0 0 1 11.2 0l1.2-1.2a9.6 9.6 0 0 0-13.6 0z"/></svg>
+    <svg viewBox="0 0 28 14" style="width:26px"><rect x=".7" y=".7" width="23" height="12.6" rx="3.3" fill="none" stroke="#1d1d1f" stroke-width="1.2"/><rect x="2.6" y="2.6" width="16" height="8.8" rx="1.8" fill="#1d1d1f"/><rect x="25" y="4.6" width="2" height="4.8" rx="1" fill="#1d1d1f"/></svg>
+    <span>Wed 21 Oct&nbsp; 14:05</span>
+  </div>
+
+  <div class="menu main">
+    <div class="item dim">Claude: Personal</div>
+    <div class="item dim">Running · signed in until Nov 17 · 1 account side by side</div>
+    <div class="sep"></div>
+    <div class="item">Open Claude Multi-Accounts…</div>
+    <div class="sep"></div>
+    <div class="item head">Open Side by Side</div>
+    <div class="item"><span class="check">✓</span>Personal<span class="note">(main Claude)</span></div>
+    <div class="item"><span class="check">✓</span>Work · Northwind<span class="note">(own window)</span></div>
+    <div class="item pick">Client · Acme Studio</div>
+    <div class="item dim">Research<span class="note">(sign-in expired)</span></div>
+    <div class="item">Sign In to Another Account in a New Window…</div>
+    <div class="item">Close Window<span class="chev">›</span></div>
+    <div class="sep"></div>
+    <div class="item">Switch Main Claude<span class="chev">›</span></div>
+    <div class="sep"></div>
+    <div class="item">Settings…</div>
+    <div class="item">Quit Claude Multi-Accounts</div>
+  </div>
+
+  <div class="caption">
+    <h1>Every account,<br>one click away.</h1>
+    <p>Open another account in its own window, signed in, while the main Claude keeps running.</p>
+  </div>
+</body>
+</html>
