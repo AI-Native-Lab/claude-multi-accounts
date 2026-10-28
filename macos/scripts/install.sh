@@ -10,7 +10,7 @@ APP="$HOME/Applications/Claude Multi-Accounts.app"
 mkdir -p "$HOME/Applications" "$HOME/.local/bin"
 
 # Ask a running copy to quit, and wait until it has: opening the new copy while the old one is
-# still shutting down fails (LaunchServices error -600). Never force-quit it. Before version 3
+# still shutting down fails (LaunchServices error -600). Never force-quit it. Before version 0.3
 # the app was called Claude Account Swap; it has the same bundle identifier.
 running() { pgrep -x -u "$(id -u)" 'ClaudeMultiAccounts|ClaudeAccountSwap' >/dev/null; }
 if running; then

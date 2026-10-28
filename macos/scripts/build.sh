@@ -4,8 +4,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-VERSION="3.0.0"   # shown in Finder; raise it, and BUILD, for every release
-BUILD="2"
+VERSION="0.3.0"   # shown in Finder; raise it, and BUILD, for every release
+BUILD="3"
 
 # A stale SDKROOT (Command Line Tools removed after Xcode was installed) breaks swift build.
 if [ -n "${SDKROOT:-}" ] && [ ! -d "$SDKROOT" ]; then unset SDKROOT; fi
@@ -24,7 +24,7 @@ cp "$BIN/claude-multi-accounts" "$APP/Contents/MacOS/claude-multi-accounts"
 cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 cp "$BIN/claude-multi-accounts" build/claude-multi-accounts
 
-# The bundle identifier is the one from before version 3, when the app was called Claude Account
+# The bundle identifier is the one from before version 0.3, when the app was called Claude Account
 # Swap, so its settings and its login item carry over.
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>

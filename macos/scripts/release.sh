@@ -1,8 +1,10 @@
 #!/bin/bash
 # Builds the app and the command and packs them for a GitHub release into build/release:
 #   Claude-Multi-Accounts-<version>-macOS.zip    the app (with the command inside)
-#   claude-multi-accounts-<version>-macOS.zip    the command on its own
+#   claude-multi-accounts-cli-<version>-macOS.zip  the command on its own
 #   SHA256SUMS.txt
+# The two zip names must differ by more than case: the Mac's disk ignores case, so
+# "Claude-Multi-Accounts-…" and "claude-multi-accounts-…" would be one file.
 # Publish with: gh release create v<version> build/release/* --notes-file <notes>
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -18,7 +20,7 @@ mkdir -p "$OUT"
 # ditto keeps the bundle intact, as Finder's Compress does. The signatures are inside the files,
 # so the extended attributes (only this Mac's provenance tags) are left out.
 ditto -c -k --norsrc --noextattr --keepParent "$APP" "$OUT/Claude-Multi-Accounts-$VERSION-macOS.zip"
-ditto -c -k --norsrc --noextattr build/claude-multi-accounts "$OUT/claude-multi-accounts-$VERSION-macOS.zip"
+ditto -c -k --norsrc --noextattr build/claude-multi-accounts "$OUT/claude-multi-accounts-cli-$VERSION-macOS.zip"
 (cd "$OUT" && shasum -a 256 *.zip > SHA256SUMS.txt)
 
 echo "Packed version $VERSION into $OUT:"

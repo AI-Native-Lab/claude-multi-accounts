@@ -13,6 +13,8 @@
 
 <p align="center"><img src="docs/screenshots/main-window.png" width="760" alt="The Claude Multi-Accounts window with four accounts: one in the main Claude, one in its own window, one saved, one with an expired sign-in"></p>
 
+**Beta.** Version 0.x is early software: it may change between versions, and a Claude update can stop it working until a new version catches up.
+
 **macOS only** (macOS 13 or later, Apple silicon and Intel). It comes two ways, built from the same code:
 
 - **Claude Multi-Accounts.app**: a window, a Dock icon and a menu bar item.
@@ -117,7 +119,7 @@ The command is inside the app. In **Settings → Command line**, click **Install
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 ```
 
-The release also has **claude-multi-accounts-…-macOS.zip** with the command on its own. After unzipping it into `~/.local/bin`, run `xattr -c ~/.local/bin/claude-multi-accounts` so macOS doesn't block it.
+The release also has **claude-multi-accounts-cli-…-macOS.zip** with the command on its own. After unzipping it into `~/.local/bin`, run `xattr -c ~/.local/bin/claude-multi-accounts` so macOS doesn't block it.
 
 ### Build it yourself
 
@@ -242,13 +244,13 @@ Deleting `~/.claude-multi-accounts` forgets the saved sign-ins and the side-by-s
 
 ## Upgrading from Claude Account Swap
 
-Up to version 2 this app was called **Claude Account Swap**, with the command `claude-desktop-swap`. Version 3 renames it and puts using accounts side by side first; what it does is otherwise the same, and your saved accounts and settings carry over.
+Up to version 0.2 this app was called **Claude Account Swap**, with the command `claude-desktop-swap`. Version 0.3 renames it and puts using accounts side by side first; what it does is otherwise the same, and your saved accounts and settings carry over.
 
 - **The app** is now **Claude Multi-Accounts.app**. `macos/scripts/install.sh` removes `~/Applications/Claude Account Swap.app`; if you installed from a release, drag the old app to the Trash.
 - **The command** is now `claude-multi-accounts`. `install.sh` removes the old `~/.local/bin/claude-desktop-swap` link; otherwise click **Install in ~/.local/bin** in Settings, which also removes the old link once the old app is gone.
 - **The folder** `~/.claude-desktop-swap` moves to `~/.claude-multi-accounts` by itself, as soon as no account is open in its own window, and its `swap.log` becomes `activity.log`. Until then the app keeps using it where it is. A link is left at the old path so that anything still using it finds the new folder; leave it in place.
 
-Coming from version 1 (the Python script with an AppleScript picker): your saved accounts keep working. An account's folder changes format the first time it is opened side by side (its `auth.json` becomes a `config.json`), which version 1 can't read.
+Coming from version 0.1 (the Python script with an AppleScript picker): your saved accounts keep working. An account's folder changes format the first time it is opened side by side (its `auth.json` becomes a `config.json`), which version 0.1 can't read.
 
 ## Good to know
 

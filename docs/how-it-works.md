@@ -45,7 +45,7 @@ Everything else in the data folder (settings, extensions, connectors, Code sessi
 - `folder` is the account's folder under `accounts/`. It is left out when it is the uuid; an account first signed in to in a new window keeps the folder that window was started on.
 - `savedAt` is local time, when its sign-in was last saved.
 
-Up to version 2 the app was called Claude Account Swap and kept this folder at `~/.claude-desktop-swap`. While that folder exists and the new one doesn't, it is used where it is. Whenever the list is read and no Claude window runs on a folder inside it, it moves (rename, same disk) to `~/.claude-multi-accounts`, a link to the new place is left at the old path (so a process that started before the move, or an older copy of the tool, still finds everything), and `swap.log` becomes `activity.log`, followed by any lines logged since. The link is never used to choose the folder.
+Up to version 0.2 the app was called Claude Account Swap and kept this folder at `~/.claude-desktop-swap`. While that folder exists and the new one doesn't, it is used where it is. Whenever the list is read and no Claude window runs on a folder inside it, it moves (rename, same disk) to `~/.claude-multi-accounts`, a link to the new place is left at the old path (so a process that started before the move, or an older copy of the tool, still finds everything), and `swap.log` becomes `activity.log`, followed by any lines logged since. The link is never used to choose the folder.
 
 An account folder holds the account's sign-in in one of two shapes:
 

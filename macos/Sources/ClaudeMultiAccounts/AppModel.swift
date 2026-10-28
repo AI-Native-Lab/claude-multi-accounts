@@ -254,7 +254,7 @@ final class AppModel: ObservableObject {
                 try fm.removeItem(at: installedCommand)
             }
             try fm.createSymbolicLink(at: installedCommand, withDestinationURL: bundled)
-            // Before version 3 the app was called Claude Account Swap and its command
+            // Before version 0.3 the app was called Claude Account Swap and its command
             // claude-desktop-swap; that link leads nowhere once the old app is gone.
             let oldLink = installedCommand.deletingLastPathComponent().appendingPathComponent("claude-desktop-swap")
             if let target = try? fm.destinationOfSymbolicLink(atPath: oldLink.path),
