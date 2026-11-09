@@ -15,10 +15,12 @@
 
 **Beta.** Version 0.x is early software: it may change between versions, and a Claude update can stop it working until a new version catches up.
 
-**macOS only** (macOS 13 or later, Apple silicon and Intel). It comes two ways, built from the same code:
+**macOS** (macOS 13 or later, Apple silicon and Intel). It comes two ways, built from the same code:
 
 - **Claude Multi-Accounts.app**: a window, a Dock icon and a menu bar item.
 - **`claude-multi-accounts`**: the same thing on the command line.
+
+**Windows** (10 and 11, 64-bit; beta): **ClaudeMultiAccounts.exe**, a window and a notification-area icon, with the same rules. See [windows/README.md](windows/README.md).
 
 > [!IMPORTANT]
 > **Not affiliated with Anthropic.** Claude Multi-Accounts is an independent, unofficial project. It is not made, endorsed or supported by Anthropic. “Claude” is Anthropic's trademark and is named here only to say which app this tool works with. Use each of your accounts in line with Anthropic's terms. For help with Claude itself, contact Anthropic, not this project.

@@ -5,3 +5,8 @@
 .swiftpm/
 macos/build/
 __pycache__/
+
+# Windows app (dotnet and windows/scripts/build.ps1)
+windows/**/bin/
+windows/**/obj/
+windows/dist/
